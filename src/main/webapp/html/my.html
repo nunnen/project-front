@@ -6,6 +6,49 @@
 </head>
 <body>
 <h1>RPG admin panel</h1>
+<table id="table">
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Title</th>
+        <th>Race</th>
+        <th>Profession</th>
+        <th>Level</th>
+        <th>Birthday</th>
+        <th>Banned</th>
+    </tr>
+</table>
 
+
+<script>
+    const table = document.getElementById("table");
+
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            url: "/rest/players",
+            success: function (response) {
+                console.log("Данные получены", response);
+
+                response.forEach((player, index) => {
+                    const row = table.insertRow();
+
+                    row.insertCell().innerText = player.id;
+                    row.insertCell().innerText = player.name;
+                    row.insertCell().innerText = player.title;
+                    row.insertCell().innerText = player.race;
+                    row.insertCell().innerText = player.profession;
+                    row.insertCell().innerText = player.level;
+                    row.insertCell().innerText = new Date(player.birthday).toLocaleDateString();
+                    row.insertCell().innerText = player.banned ? "Yes" : "No";
+                })
+            },
+            error: function (error) {
+                console.log("Ошибка", error)
+            }
+        })
+    })
+
+</script>
 </body>
 </html>
