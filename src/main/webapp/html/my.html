@@ -123,6 +123,20 @@
         }
     }
 
+    //delete player function
+    function deletePlayer(id) {
+        $.ajax({
+            type: "DELETE",
+            url: "/rest/players/" + id,
+            success: function (response) {
+                console.log("player_" + id + " was deleted");
+            },
+            error: function (error) {
+                console.log("Error:", error.status);
+            }
+        })
+    }
+
     //обработка размера таблицы
     $("#dropdown").on("change", function () {
         pageSize = parseInt($(this).val());
@@ -130,6 +144,15 @@
         loadData(pageNumber, pageSize);
         updatePagination(pageSize);
     })
+
+    //обработка удаления игрока по нажатию кнопки
+    $(document).on("click", ".delete-button", function () {
+        const playerId = parseInt($(this).attr("id"));
+        deletePlayer(playerId);
+        loadData(pageNumber, pageSize);
+        updatePagination(pageSize);
+    })
+
 
 
 </script>
