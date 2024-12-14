@@ -12,6 +12,7 @@
     <option value="3" selected>3</option>
     <option value="5">5</option>
     <option value="10">10</option>
+    <option value="20">20</option>
 </select>
 
 <table id="table">
@@ -38,10 +39,11 @@
     const table = document.getElementById("table");
 
     $(document).ready(function () {
-        let pageNumber = 0;
-        let pageSize = 3;
+        const pageNumber = 0;
+        const pageSize = 3;
 
         loadData(pageNumber, pageSize);
+        updatePagination(pageSize);
     })
 
     function loadData(pageNumber, pageSize) {
@@ -58,7 +60,7 @@
             },
 
             error: function (error) {
-                console.log("Error:", error)
+                console.error("Error:", error)
             }
         })
     }
@@ -86,12 +88,40 @@
     }
 
     //обновление пагинации
+    function updatePagination(pageSize) {
+        $.ajax({
+            type: "GET",
+            url: "rest/players/count",
+            success: function (totalAccounts) {
+                const totalPages = Math.ceil(totalAccounts / pageSize);
+                renderPagination(totalPages);
+            }
+        })
+    }
+
+    //обновление кнопок пагинации
+    function renderPagination(totalPages) {
+        const pagination = $("#pagination");
+        pagination.empty();
+
+        for (let i = 0; i < totalPages; i++) {
+            const pageButton = $("<button>" + (i + 1) + "</button>");
+
+            pageButton.on("click", function () {
+                pageNumber = i;
+                loadData(pageNumber, pageSize);
+                updatePagination(pageSize);
+            })
+            pagination.append(pageButton);
+        }
+    }
 
     //обработка размера таблицы
     $("#dropdown").on("change", function () {
         pageSize = parseInt($(this).val());
         pageNumber = 0;
         loadData(pageNumber, pageSize);
+        updatePagination(pageSize);
     })
 
 
