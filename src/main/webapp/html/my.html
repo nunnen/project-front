@@ -26,6 +26,8 @@
             <th>Level</th>
             <th>Birthday</th>
             <th>Banned</th>
+            <th>Edit</th>
+            <th>Delete</th>
         </tr>
     </thead>
     <tbody>
@@ -37,11 +39,10 @@
 
 <script>
     const table = document.getElementById("table");
+    let pageNumber = 0;
+    let pageSize = 3;
 
     $(document).ready(function () {
-        const pageNumber = 0;
-        const pageSize = 3;
-
         loadData(pageNumber, pageSize);
         updatePagination(pageSize);
     })
@@ -81,6 +82,8 @@
                 <td>${player.level}</td>
                 <td>${new Date(player.birthday).toLocaleDateString()}</td>
                 <td>${player.banned ? "Yes" : "No"}</td>
+                <td><button class="edit-button" id="${player.id}"><img src="/img/edit.png"</button></td>
+                <td><button class="delete-button" id="${player.id}"><img src="/img/delete.png"</button></td>
             </tr>
         `;
             tbody.append(row); // Добавляем строки только в <tbody>
@@ -106,6 +109,10 @@
 
         for (let i = 0; i < totalPages; i++) {
             const pageButton = $("<button>" + (i + 1) + "</button>");
+
+            if (i === pageNumber) {
+                pageButton.addClass("active");
+            }
 
             pageButton.on("click", function () {
                 pageNumber = i;
