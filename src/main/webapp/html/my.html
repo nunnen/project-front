@@ -6,48 +6,94 @@
 </head>
 <body>
 <h1>RPG admin panel</h1>
+
+<label for="dropdown">Count per page:</label>
+<select id="dropdown">
+    <option value="3" selected>3</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
+</select>
+
 <table id="table">
-    <tr>
-        <th>#</th>
-        <th>Name</th>
-        <th>Title</th>
-        <th>Race</th>
-        <th>Profession</th>
-        <th>Level</th>
-        <th>Birthday</th>
-        <th>Banned</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Race</th>
+            <th>Profession</th>
+            <th>Level</th>
+            <th>Birthday</th>
+            <th>Banned</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
 </table>
+
+<div id="pagination"></div>
 
 
 <script>
     const table = document.getElementById("table");
 
     $(document).ready(function () {
+        let pageNumber = 0;
+        let pageSize = 3;
+
+        loadData(pageNumber, pageSize);
+    })
+
+    function loadData(pageNumber, pageSize) {
         $.ajax({
             type: "GET",
             url: "/rest/players",
-            success: function (response) {
-                console.log("Данные получены", response);
-
-                response.forEach((player, index) => {
-                    const row = table.insertRow();
-
-                    row.insertCell().innerText = player.id;
-                    row.insertCell().innerText = player.name;
-                    row.insertCell().innerText = player.title;
-                    row.insertCell().innerText = player.race;
-                    row.insertCell().innerText = player.profession;
-                    row.insertCell().innerText = player.level;
-                    row.insertCell().innerText = new Date(player.birthday).toLocaleDateString();
-                    row.insertCell().innerText = player.banned ? "Yes" : "No";
-                })
+            data: {
+                pageNumber: pageNumber,
+                pageSize: pageSize
             },
+            success: function (response) {
+                console.log("Data acquired:", response);
+                updateTable(response);
+            },
+
             error: function (error) {
-                console.log("Ошибка", error)
+                console.log("Error:", error)
             }
         })
+    }
+
+    //обновление таблицы
+    function updateTable(data) {
+        const tbody = $("#table tbody"); // Находим <tbody>
+        tbody.empty(); // Очищаем только <tbody>
+
+        data.forEach((player) => {
+            const row = `
+            <tr>
+                <td>${player.id}</td>
+                <td>${player.name}</td>
+                <td>${player.title}</td>
+                <td>${player.race}</td>
+                <td>${player.profession}</td>
+                <td>${player.level}</td>
+                <td>${new Date(player.birthday).toLocaleDateString()}</td>
+                <td>${player.banned ? "Yes" : "No"}</td>
+            </tr>
+        `;
+            tbody.append(row); // Добавляем строки только в <tbody>
+        });
+    }
+
+    //обновление пагинации
+
+    //обработка размера таблицы
+    $("#dropdown").on("change", function () {
+        pageSize = parseInt($(this).val());
+        pageNumber = 0;
+        loadData(pageNumber, pageSize);
     })
+
 
 </script>
 </body>
