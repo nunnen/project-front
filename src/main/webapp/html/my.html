@@ -82,8 +82,8 @@
                 <td>${player.level}</td>
                 <td>${new Date(player.birthday).toLocaleDateString()}</td>
                 <td>${player.banned ? "Yes" : "No"}</td>
-                <td><button class="edit-button" id="${player.id}"><img src="/img/edit.png"</button></td>
-                <td><button class="delete-button" id="${player.id}"><img src="/img/delete.png"</button></td>
+                <td><button class="edit-button" id="${player.id}"><img src="/img/edit.png"/></button></td>
+                <td><button class="delete-button" id="${player.id}"><img src="/img/delete.png"/></button></td>
             </tr>
         `;
             tbody.append(row); // Добавляем строки только в <tbody>
@@ -151,6 +151,16 @@
         deletePlayer(playerId);
         loadData(pageNumber, pageSize);
         updatePagination(pageSize);
+    })
+
+    //обработка редактирования игрока по нажатию кнопки
+    $(document).on("click", ".edit-button", function () {
+        //поиск близкой строки таблицы к нажатой кнопке
+        const row = $(this).closest("tr");
+        const deleteButton = row.find(".delete-button");
+        deleteButton.hide();
+
+        $(this).find("img").attr('src', '/img/save.png');
     })
 
 
