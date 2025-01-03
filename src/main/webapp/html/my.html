@@ -17,18 +17,18 @@
 
 <table id="table">
     <thead>
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Title</th>
-            <th>Race</th>
-            <th>Profession</th>
-            <th>Level</th>
-            <th>Birthday</th>
-            <th>Banned</th>
-            <th>Edit</th>
-            <th>Delete</th>
-        </tr>
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Title</th>
+        <th>Race</th>
+        <th>Profession</th>
+        <th>Level</th>
+        <th>Birthday</th>
+        <th>Banned</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
     </thead>
     <tbody>
     </tbody>
@@ -81,7 +81,7 @@
                 <td>${player.profession}</td>
                 <td>${player.level}</td>
                 <td>${new Date(player.birthday).toLocaleDateString()}</td>
-                <td>${player.banned ? "Yes" : "No"}</td>
+                <td>${player.banned ? "true" : "false"}</td>
                 <td><button class="edit-button" id="${player.id}"><img src="/img/edit.png"/></button></td>
                 <td><button class="delete-button" id="${player.id}"><img src="/img/delete.png"/></button></td>
             </tr>
@@ -160,9 +160,94 @@
         const deleteButton = row.find(".delete-button");
         deleteButton.hide();
 
-        $(this).find("img").attr('src', '/img/save.png');
-    })
+        const editButton = $(this);
+        const isEditMode = editButton.hasClass("edit-mode");
 
+        if (isEditMode) {
+            // save mode
+            const idValue = row.find("td").eq(0).text();
+            const nameValue = row.find("td").eq(1).find("input").val();
+            const titleValue = row.find("td").eq(2).find("input").val();
+            const raceValue = row.find("td").eq(3).find("select").val();
+            const professionValue = row.find("td").eq(4).find("select").val();
+            const bannedValue = row.find("td").eq(7).find("select").val();
+
+            // send data to server
+            $.ajax({
+                type: "POST",
+                url: `/rest/players/${idValue}`,
+                contentType: "application/json",
+                data: JSON.stringify({
+                    name: nameValue,
+                    title: titleValue,
+                    race: raceValue,
+                    profession: professionValue,
+                    banned: bannedValue
+                }),
+                success: function () {
+                    console.log("Игрок отредактирован!")
+                },
+                error: function () {
+                    console.log("Ошибка при редактировании: " + error.status)
+                }
+            });
+
+            row.find("td").eq(1).text(nameValue);
+            row.find("td").eq(2).text(titleValue);
+            row.find("td").eq(3).text(raceValue);
+            row.find("td").eq(4).text(professionValue);
+            row.find("td").eq(7).text(bannedValue);
+
+            editButton.find("img").attr("src", "/img/edit.png");
+            editButton.removeClass("edit-mode");
+            deleteButton.show();
+        } else {
+            // edit mode
+            editButton.find("img").attr("src", "/img/save.png");
+            editButton.addClass("edit-mode");
+
+            const nameCell = row.find("td").eq(1);
+            const titleCell = row.find("td").eq(2);
+            const raceCell = row.find("td").eq(3);
+            const professionCell = row.find("td").eq(4);
+            const banCell = row.find("td").eq(7);
+
+            const currentRace = raceCell.text().trim();
+            const currentProfession = professionCell.text().trim();
+            const currentBanned = banCell.text().trim();
+
+            nameCell.html(`<input type="text" value="${nameCell.text()}">`)
+            titleCell.html(`<input type="text" value="${titleCell.text()}">`);
+            raceCell.html(`
+            <select>
+                <option value="HUMAN" ${currentRace === "HUMAN" ? "selected" : ""}>HUMAN</option>
+                <option value="DWARF" ${currentRace === "DWARF" ? "selected" : ""}>DWARF</option>
+                <option value="ELF" ${currentRace === "ELF" ? "selected" : ""}>ELF</option>
+                <option value="GIANT" ${currentRace === "GIANT" ? "selected" : ""}>GIANT</option>
+                <option value="ORC" ${currentRace === "ORC" ? "selected" : ""}>ORC</option>
+                <option value="TROLL" ${currentRace === "TROLL" ? "selected" : ""}>TROLL</option>
+                <option value="HOBBIT" ${currentRace === "HOBBIT" ? "selected" : ""}>HOBBIT</option>
+            </select>`);
+
+            professionCell.html(`
+            <select>
+                <option value="WARRIOR" ${currentProfession === "WARRIOR" ? "selected" : ""}>WARRIOR</option>
+                <option value="ROGUE" ${currentProfession === "ROGUE" ? "selected" : ""}>ROGUE</option>
+                <option value="SORCERER" ${currentProfession === "SORCERER" ? "selected" : ""}>SORCERER</option>
+                <option value="CLERIC" ${currentProfession === "CLERIC" ? "selected" : ""}>CLERIC</option>
+                <option value="PALADIN" ${currentProfession === "PALADIN" ? "selected" : ""}>PALADIN</option>
+                <option value="NAZGUL" ${currentProfession === "NAZGUL" ? "selected" : ""}>NAZGUL</option>
+                <option value="WARLOCK" ${currentProfession === "WARLOCK" ? "selected" : ""}>WARLOCK</option>
+                <option value="DRUID" ${currentProfession === "DRUID" ? "selected" : ""}>DRUID</option>
+            </select>`);
+
+            banCell.html(`
+            <select>
+                <option value="true" ${currentBanned === "true" ? "selected" : ""}>true</option>
+                <option value="false" ${currentBanned === "false" ? "selected" : ""}>false</option>
+            </select>`)
+        }
+    })
 
 
 </script>
