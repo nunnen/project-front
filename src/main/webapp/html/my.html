@@ -7,6 +7,7 @@
 <body>
 <h1>RPG admin panel</h1>
 
+<h2>Accounts list:</h2>
 <label for="dropdown">Count per page:</label>
 <select id="dropdown">
     <option value="3" selected>3</option>
@@ -35,6 +36,61 @@
 </table>
 
 <div id="pagination"></div>
+<h1>Create new account:</h1>
+<div id="create-account">
+    <label>
+        Name:
+        <input type="text" id="new-name" maxlength="12" required>
+    </label><br>
+
+    <label>
+        Title:
+        <input type="text" id="new-title" maxlength="30" required>
+    </label><br>
+
+    <label for="new-race">Race:</label>
+    <select id="new-race">
+        <option value="HUMAN">HUMAN</option>
+        <option value="DWARF">DWARF</option>
+        <option value="ELF">ELF</option>
+        <option value="GIANT">GIANT</option>
+        <option value="ORC">ORC</option>
+        <option value="TROLL">TROLL</option>
+        <option value="HOBBIT">HOBBIT</option>
+    </select><br>
+
+    <label for="new-profession">Profession:</label>
+    <select id="new-profession">
+        <option value="WARRIOR">WARRIOR</option>
+        <option value="ROGUE">ROGUE</option>
+        <option value="SORCERER">SORCERER</option>
+        <option value="CLERIC">CLERIC</option>
+        <option value="PALADIN">PALADIN</option>
+        <option value="NAZGUL">NAZGUL</option>
+        <option value="WARLOCK">WARLOCK</option>
+        <option value="DRUID">DRUID</option>
+    </select><br>
+
+    <label>
+        Level:
+        <input type="number" id="new-level" min="0" max="100" required>
+    </label><br>
+
+    <label>
+        Birthday:
+        <input type="date" id="new-birthday" required>
+    </label><br>
+
+    <label for="new-banned">
+        Banned:
+        <select id="new-banned">
+            <option value="true">true</option>
+            <option value="false" selected>false</option>
+        </select>
+    </label><br>
+
+    <button id="create-button">Save</button>
+</div>
 
 
 <script>
@@ -90,7 +146,7 @@
         });
     }
 
-    //обновление пагинации
+    //update pagination
     function updatePagination(pageSize) {
         $.ajax({
             type: "GET",
@@ -201,6 +257,7 @@
             editButton.find("img").attr("src", "/img/edit.png");
             editButton.removeClass("edit-mode");
             deleteButton.show();
+
         } else {
             // edit mode
             editButton.find("img").attr("src", "/img/save.png");
@@ -247,6 +304,61 @@
                 <option value="false" ${currentBanned === "false" ? "selected" : ""}>false</option>
             </select>`)
         }
+    })
+
+    //create button functionality
+    $(document).on("click", `#create-button`, function () {
+        const name = $("#new-name").val().trim();
+        const title = $("#new-title").val().trim();
+        const race = $("#new-race").val();
+        const profession = $("#new-profession").val();
+        const level = parseInt($("#new-level").val());
+        const birthday = $("#new-birthday").val();
+        const banned = $("#new-banned").val() === "true";
+
+        //alert if not fill
+        if (name.length < 1 || name.length > 12) {
+            alert("Length of title must be less 12 symbols and not blank");
+            return;
+        }
+
+        if (title.length < 1 || title.length > 30) {
+            alert("Length of title must be less 30 symbols and not blank");
+            return;
+        }
+
+        if (isNaN(level) || level < 0 || level > 100) {
+            alert("Level must be in range 0-100");
+            return;
+        }
+
+        if (!birthday) {
+            alert("Choose birthday");
+            return;
+        }
+
+        //send data to server
+        $.ajax({
+            type: "POST",
+            url: "/rest/players",
+            contentType: "application/json",
+            data: JSON.stringify({
+                name: name,
+                title: title,
+                race: race,
+                profession: profession,
+                level: level,
+                birthday: new Date(birthday).getTime(),
+                banned: banned
+            }),
+            success: function () {
+                console.log("Новый аккаунт создан успешно!");
+                location.reload();
+            },
+            error: function () {
+                console.log("Возникла ошибка при создании аккаунта: " + error.status);
+            }
+        })
     })
 
 
